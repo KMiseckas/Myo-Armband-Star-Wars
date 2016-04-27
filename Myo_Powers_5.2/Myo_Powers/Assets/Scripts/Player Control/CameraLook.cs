@@ -11,6 +11,7 @@ public class CameraLook : MonoBehaviour
     public GameObject myoGameObject;
 
     [Header ("Camera Look Settings")]
+    public GameObject playerObj;
     public GameObject cam;
     public float deadZoneBorder = 15;
     public float sensitivity = 1;
@@ -169,9 +170,19 @@ public class CameraLook : MonoBehaviour
 
     void SetNewCameraRot()
     {
+        Vector3 tempRot = newCamRot;
+        tempRot.x = 0;
+        tempRot.z = 0;
+
+        //Rotate player body on the y axis instead of the camera
+        playerObj.transform.localEulerAngles = tempRot;
+
+        tempRot = newCamRot;
+        tempRot.y = 0;
+
         newCamRot.x = Mathf.Clamp (newCamRot.x, -minCameraXAngle, maxCameraXAngle);
 
-        cam.transform.localEulerAngles = newCamRot;
+        cam.transform.localEulerAngles = tempRot;
     }
 
     void Calibrate()

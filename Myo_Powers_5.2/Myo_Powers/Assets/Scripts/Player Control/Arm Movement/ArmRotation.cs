@@ -63,7 +63,7 @@ public class ArmRotation : MonoBehaviour
     private float normalArmHolderZ = 0;
 
     private bool canControlArm = true;
-    private bool hasBeenCalibrated = false;
+    public static bool hasBeenCalibrated = false;
 
     Vector3 newArmRotationLocal = Vector3.zero;
     Vector3 newArmHolderRotationLocal = Vector3.zero;

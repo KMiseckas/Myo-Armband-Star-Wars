@@ -9,6 +9,8 @@ public class MyoPoseCheck : MonoBehaviour
 {
     public bool isPoseCheckEnabled = true;
 
+    public GameObject armAnimationObject;
+
     [Header ("Myo")]
     public GameObject myoGameObject;
 
@@ -18,12 +20,16 @@ public class MyoPoseCheck : MonoBehaviour
     private float nextMyoPoseCheck = 0f;
 
     private bool isLightningOn = false;
-    private bool isFireOn = false;
+    //private bool isFireOn = false;
     private bool isGripOn = false;
+    private bool isPushOn = false;
+    private bool isPullOn = false;
 
     Pose lastMyoPose;
 
     ThalmicMyo myo;
+
+    Animator armAnimator;
 
     public delegate void PoseAction();
     public static event PoseAction onUseLightning;
@@ -38,6 +44,7 @@ public class MyoPoseCheck : MonoBehaviour
     void Start()
     {
         myo = myoGameObject.GetComponent<ThalmicMyo> ();
+        armAnimator = armAnimationObject.GetComponent<Animator> ();
     }
 
     void Update()
@@ -61,45 +68,77 @@ public class MyoPoseCheck : MonoBehaviour
 
     void GetPower()
     {
-        switch(myo.pose)
+        if(ArmRotation.hasBeenCalibrated)
         {
-            case Pose.FingersSpread:
-                if(onUseLightning != null)
-                {
-                    onUseLightning ();
-                    isLightningOn = true;
-                }
 
-                StopUsingGrip ();
-                StopUsingFire ();
-                break;
-            case Pose.Fist:
-                if(onUseGrip != null)
-                {
-                    onUseGrip ();
-                    isGripOn = true;
-                }
+            switch(myo.pose)
+            {
+                case Pose.FingersSpread:
+                    if(onUseLightning != null)
+                    {
+                        onUseLightning ();
+                        isLightningOn = true;
 
-                StopUsingFire ();
-                StopUsingLightning ();
-                break;
-            case Pose.WaveIn:
-                StopUsingFire ();
-                StopUsingGrip ();
-                StopUsingLightning ();
-                break;
-            case Pose.WaveOut:
-                StopUsingFire ();
-                StopUsingGrip ();
-                StopUsingLightning ();
-                break;
-            case Pose.DoubleTap:
-            case Pose.Rest:
-            case Pose.Unknown:
-                StopUsingFire ();
-                StopUsingGrip ();
-                StopUsingLightning ();
-                break;
+                        armAnimator.SetBool ("lightning", true);
+                    }
+
+                    StopUsingGrip ();
+                    //StopUsingFire ();
+                    StopUsingPush ();
+                    StopUsingPull ();
+                    break;
+                case Pose.Fist:
+                    if(onUseGrip != null)
+                    {
+                        onUseGrip ();
+                        isGripOn = true;
+                    }
+
+                    //StopUsingFire ();
+                    StopUsingLightning ();
+                    StopUsingPush ();
+                    StopUsingPull ();
+                    break;
+                case Pose.WaveIn:
+                    if (onUsePull != null)
+                    {
+                        if (isPullOn != true)
+                        {
+                            onUsePull ();
+                            isPullOn = true;
+                        }
+                    }
+
+                    //StopUsingFire ();
+                    StopUsingGrip ();
+                    StopUsingLightning ();
+                    StopUsingPush ();
+                    break;
+                case Pose.WaveOut:
+                    if(onUsePush != null)
+                    {
+                        if(isPushOn != true)
+                        {
+                            onUsePush ();
+                            isPushOn = true;
+                        }
+                    }
+
+                    //StopUsingFire ();
+                    StopUsingGrip ();
+                    StopUsingLightning ();
+                    StopUsingPull ();
+                    break;
+                case Pose.DoubleTap:
+                case Pose.Rest:
+                case Pose.Unknown:
+                    //StopUsingFire ();
+                    StopUsingGrip ();
+                    StopUsingLightning ();
+                    StopUsingPush ();
+                    StopUsingPull ();
+                    break;
+            }
         }
     }
 
@@ -109,17 +148,18 @@ public class MyoPoseCheck : MonoBehaviour
         {
             onStopLightning ();
             isLightningOn = false;
+            armAnimator.SetBool ("lightning", false);
         }
     }
 
-    void StopUsingFire()
+    /*void StopUsingFire()
     {
         if(isFireOn)
         {
             onStopFire ();
             isFireOn = false;
         }
-    }
+    }*/
 
     void StopUsingGrip()
     {
@@ -128,5 +168,15 @@ public class MyoPoseCheck : MonoBehaviour
             onStopGrip ();
             isGripOn = false;
         }
+    }
+
+    void StopUsingPush()
+    {
+        isPushOn = false;
+    }
+
+    void StopUsingPull()
+    {
+        isPullOn = false;
     }
 }

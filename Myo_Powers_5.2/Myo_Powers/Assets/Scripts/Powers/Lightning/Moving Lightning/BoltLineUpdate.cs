@@ -13,10 +13,7 @@ public class BoltLineUpdate : MonoBehaviour
     void Start()
     {
         defaultScale = transform.localScale;
-    }
 
-    void Update()
-    {
         transform.LookAt (endNodePos);
 
         length = Vector3.Distance (startNodePos, endNodePos);
